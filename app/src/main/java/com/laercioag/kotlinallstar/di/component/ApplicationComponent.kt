@@ -1,6 +1,7 @@
 package com.laercioag.kotlinallstar.di.component
 
 import com.laercioag.kotlinallstar.di.module.AndroidModule
+import com.laercioag.kotlinallstar.di.module.DataModule
 import com.laercioag.kotlinallstar.ui.base.BaseApplication
 import dagger.BindsInstance
 import dagger.Component
@@ -15,7 +16,8 @@ import javax.inject.Singleton
     modules = [
         AndroidInjectionModule::class,
         AndroidSupportInjectionModule::class,
-        AndroidModule::class
+        AndroidModule::class,
+        DataModule::class
     ]
 )
 interface ApplicationComponent : AndroidInjector<BaseApplication> {

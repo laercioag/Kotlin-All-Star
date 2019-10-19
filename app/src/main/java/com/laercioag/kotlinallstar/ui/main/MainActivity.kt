@@ -1,6 +1,5 @@
 package com.laercioag.kotlinallstar.ui.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController

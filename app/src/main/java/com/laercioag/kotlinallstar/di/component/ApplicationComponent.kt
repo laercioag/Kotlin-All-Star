@@ -2,6 +2,7 @@ package com.laercioag.kotlinallstar.di.component
 
 import com.laercioag.kotlinallstar.di.module.AndroidModule
 import com.laercioag.kotlinallstar.di.module.DataModule
+import com.laercioag.kotlinallstar.di.module.ViewModelModule
 import com.laercioag.kotlinallstar.ui.base.BaseApplication
 import dagger.BindsInstance
 import dagger.Component
@@ -17,6 +18,7 @@ import javax.inject.Singleton
         AndroidInjectionModule::class,
         AndroidSupportInjectionModule::class,
         AndroidModule::class,
+        ViewModelModule::class,
         DataModule::class
     ]
 )

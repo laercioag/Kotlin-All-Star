@@ -3,6 +3,8 @@ package com.laercioag.kotlinallstar.di.module
 import com.laercioag.kotlinallstar.data.remote.api.RepositoriesApi
 import com.laercioag.kotlinallstar.data.remote.api.RepositoriesApiImpl
 import com.laercioag.kotlinallstar.data.remote.service.RemoteService
+import com.laercioag.kotlinallstar.data.repository.RepositoriesRepository
+import com.laercioag.kotlinallstar.data.repository.RepositoriesRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -43,6 +45,9 @@ class DataModule {
     abstract class Binder {
         @Binds
         abstract fun bindRepositoriesApi(impl: RepositoriesApiImpl): RepositoriesApi
+
+        @Binds
+        abstract fun bindRepositoriesRepository(impl: RepositoriesRepositoryImpl): RepositoriesRepository
     }
 
 }

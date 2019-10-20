@@ -1,9 +1,9 @@
 package com.laercioag.kotlinallstar.ui.list
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.laercioag.kotlinallstar.data.remote.dto.Repositories
+import com.laercioag.kotlinallstar.data.remote.dto.Item
 import com.laercioag.kotlinallstar.data.repository.RepositoriesRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -15,7 +15,8 @@ class ListViewModel @Inject constructor(
     private val repositoriesRepository: RepositoriesRepository
 ) : ViewModel() {
 
-    val repositories = MutableLiveData<Repositories>()
+    private val _state = MutableLiveData<State>()
+    val state: LiveData<State> = _state
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -26,14 +27,17 @@ class ListViewModel @Inject constructor(
     private fun getRepositories() {
         compositeDisposable.add(
             repositoriesRepository.get()
+                .doOnSubscribe {
+                    _state.postValue(State.LoadingState)
+                }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                    onError = {
-                        Log.e(ListFragment::class.java.simpleName, "Error: ", it)
+                    onError = { throwable ->
+                        _state.postValue(State.ErrorState(throwable))
                     },
-                    onSuccess = {
-                        repositories.postValue(it)
+                    onSuccess = { repositories ->
+                        _state.postValue(State.RepositoriesListState(repositories.items.orEmpty()))
                     }
                 )
         )
@@ -42,6 +46,12 @@ class ListViewModel @Inject constructor(
     override fun onCleared() {
         compositeDisposable.dispose()
         super.onCleared()
+    }
+
+    sealed class State {
+        object LoadingState : State()
+        data class ErrorState(val throwable: Throwable) : State()
+        data class RepositoriesListState(val items: List<Item>) : State()
     }
 
 }

@@ -3,8 +3,8 @@ package com.laercioag.kotlinallstar.ui.list
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagedList
 import com.laercioag.kotlinallstar.data.local.entity.Repository
-import com.laercioag.kotlinallstar.data.remote.dto.Item
 import com.laercioag.kotlinallstar.data.repository.RepositoriesRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -37,11 +37,18 @@ class ListViewModel @Inject constructor(
                     onError = { throwable ->
                         _state.postValue(State.ErrorState(throwable))
                     },
-                    onSuccess = { repositories ->
+                    onNext = { repositories ->
                         _state.postValue(State.ListState(repositories))
                     }
                 )
         )
+    }
+
+    fun refresh() {
+        repositoriesRepository.invalidate()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
     }
 
     override fun onCleared() {
@@ -52,7 +59,7 @@ class ListViewModel @Inject constructor(
     sealed class State {
         object LoadingState : State()
         data class ErrorState(val throwable: Throwable) : State()
-        data class ListState(val items: List<Repository>) : State()
+        data class ListState(val items: PagedList<Repository>) : State()
     }
 
 }

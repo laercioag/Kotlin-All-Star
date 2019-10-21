@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Kotlin All Star</string>
+    <string name="position_description">#%d</string>
+    <string name="stars_description">%d stars</string>
+    <string name="forks_description">%d forks</string>
+    <string name="counter_description">%d repositories</string>
 </resources>

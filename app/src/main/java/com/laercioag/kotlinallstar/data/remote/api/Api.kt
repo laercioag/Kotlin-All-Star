@@ -7,7 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface Api {
-    fun get(): Single<Response>
+    fun get(page: Int, pageSize: Int): Single<Response>
 }
 
 @Singleton
@@ -15,7 +15,7 @@ class ApiImpl @Inject constructor(
     private val remoteService: RemoteService
 ) : Api {
 
-    override fun get(): Single<Response> {
-        return remoteService.getRepositories()
+    override fun get(page: Int, pageSize: Int): Single<Response> {
+        return remoteService.getRepositories(page, pageSize)
     }
 }

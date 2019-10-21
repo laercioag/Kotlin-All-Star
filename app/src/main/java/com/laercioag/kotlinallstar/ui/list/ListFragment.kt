@@ -8,15 +8,15 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.paging.PagedList
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laercioag.kotlinallstar.R
+import com.laercioag.kotlinallstar.data.local.entity.Repository
 import com.laercioag.kotlinallstar.data.remote.api.Api
-import com.laercioag.kotlinallstar.data.remote.dto.Item
 import com.laercioag.kotlinallstar.ui.base.BaseFragment
 import kotlinx.android.synthetic.main.list_fragment.*
 import javax.inject.Inject
-import androidx.recyclerview.widget.DividerItemDecoration
-import com.laercioag.kotlinallstar.data.local.entity.Repository
 
 class ListFragment : BaseFragment() {
 
@@ -54,7 +54,15 @@ class ListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupSwipeToRefresh()
         setupRecyclerView()
+    }
+
+    private fun setupSwipeToRefresh() {
+        swipeToRefresh.setOnRefreshListener {
+            swipeToRefresh.isRefreshing = true
+            viewModel.refresh()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -74,12 +82,14 @@ class ListFragment : BaseFragment() {
     }
 
     private fun showError(throwable: Throwable) {
+        loader.visibility = View.GONE
         Log.e(ListFragment::class.java.simpleName, "Error: ", throwable)
     }
 
-    private fun showList(items: List<Repository>) {
+    private fun showList(items: PagedList<Repository>) {
+        swipeToRefresh.isRefreshing = false
         loader.visibility = View.GONE
-        adapter.items = items
+        adapter.submitList(items)
     }
 
 }

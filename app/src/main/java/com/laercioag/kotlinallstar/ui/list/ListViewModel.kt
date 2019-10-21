@@ -3,6 +3,7 @@ package com.laercioag.kotlinallstar.ui.list
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.laercioag.kotlinallstar.data.local.entity.Repository
 import com.laercioag.kotlinallstar.data.remote.dto.Item
 import com.laercioag.kotlinallstar.data.repository.RepositoriesRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -37,7 +38,7 @@ class ListViewModel @Inject constructor(
                         _state.postValue(State.ErrorState(throwable))
                     },
                     onSuccess = { repositories ->
-                        _state.postValue(State.RepositoriesListState(repositories.items.orEmpty()))
+                        _state.postValue(State.ListState(repositories))
                     }
                 )
         )
@@ -51,7 +52,7 @@ class ListViewModel @Inject constructor(
     sealed class State {
         object LoadingState : State()
         data class ErrorState(val throwable: Throwable) : State()
-        data class RepositoriesListState(val items: List<Item>) : State()
+        data class ListState(val items: List<Repository>) : State()
     }
 
 }

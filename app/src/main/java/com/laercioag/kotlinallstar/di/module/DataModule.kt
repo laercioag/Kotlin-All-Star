@@ -1,7 +1,12 @@
 package com.laercioag.kotlinallstar.di.module
 
-import com.laercioag.kotlinallstar.data.remote.api.RepositoriesApi
-import com.laercioag.kotlinallstar.data.remote.api.RepositoriesApiImpl
+import android.content.Context
+import androidx.room.Room
+import com.laercioag.kotlinallstar.data.local.database.AppDatabase
+import com.laercioag.kotlinallstar.data.mapper.RepositoryMapper
+import com.laercioag.kotlinallstar.data.mapper.RepositoryMapperImpl
+import com.laercioag.kotlinallstar.data.remote.api.Api
+import com.laercioag.kotlinallstar.data.remote.api.ApiImpl
 import com.laercioag.kotlinallstar.data.remote.service.RemoteService
 import com.laercioag.kotlinallstar.data.repository.RepositoriesRepository
 import com.laercioag.kotlinallstar.data.repository.RepositoriesRepositoryImpl
@@ -41,10 +46,21 @@ class DataModule {
     fun provideRemoteService(retrofit: Retrofit): RemoteService =
         retrofit.create(RemoteService::class.java)
 
+    @Provides
+    @Singleton
+    fun provideDatabase(@AppContext context: Context): AppDatabase =
+        Room.databaseBuilder(
+            context,
+            AppDatabase::class.java, "kotlin-all-star-db"
+        ).build()
+
     @Module
     abstract class Binder {
         @Binds
-        abstract fun bindRepositoriesApi(impl: RepositoriesApiImpl): RepositoriesApi
+        abstract fun bindApi(impl: ApiImpl): Api
+
+        @Binds
+        abstract fun bindRepositoryMapper(impl: RepositoryMapperImpl): RepositoryMapper
 
         @Binds
         abstract fun bindRepositoriesRepository(impl: RepositoriesRepositoryImpl): RepositoriesRepository

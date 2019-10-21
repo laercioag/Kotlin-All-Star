@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.laercioag.kotlinallstar.R
-import com.laercioag.kotlinallstar.data.remote.dto.Item
+import com.laercioag.kotlinallstar.data.local.entity.Repository
 import kotlinx.android.synthetic.main.list_item.view.*
 
 class ListAdapter : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
-    var items: List<Item> = listOf()
+    var items: List<Repository> = listOf()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -29,13 +29,13 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(item: Item) {
+        fun bind(item: Repository) {
             with(itemView) {
-                Glide.with(this).load(item.owner?.avatarUrl).into(avatar)
+                Glide.with(this).load(item.avatarUrl).into(avatar)
                 name.text = item.fullName
-                author.text = item.owner?.login
-                stars.text = "${item.stargazersCount} stars"
-                forks.text = "${item.forksCount} forks"
+                author.text = item.author
+                stars.text = "${item.stars} stars"
+                forks.text = "${item.forks} forks"
             }
         }
     }

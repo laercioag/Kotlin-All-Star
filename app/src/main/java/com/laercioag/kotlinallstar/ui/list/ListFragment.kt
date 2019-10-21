@@ -10,17 +10,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laercioag.kotlinallstar.R
-import com.laercioag.kotlinallstar.data.remote.api.RepositoriesApi
+import com.laercioag.kotlinallstar.data.remote.api.Api
 import com.laercioag.kotlinallstar.data.remote.dto.Item
 import com.laercioag.kotlinallstar.ui.base.BaseFragment
 import kotlinx.android.synthetic.main.list_fragment.*
 import javax.inject.Inject
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.laercioag.kotlinallstar.data.local.entity.Repository
 
 class ListFragment : BaseFragment() {
 
     @Inject
-    lateinit var repositoriesApi: RepositoriesApi
+    lateinit var api: Api
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -33,7 +34,7 @@ class ListFragment : BaseFragment() {
         when (state) {
             is ListViewModel.State.LoadingState -> showLoading()
             is ListViewModel.State.ErrorState -> showError(state.throwable)
-            is ListViewModel.State.RepositoriesListState -> showList(state.items)
+            is ListViewModel.State.ListState -> showList(state.items)
         }
     }
 
@@ -76,7 +77,7 @@ class ListFragment : BaseFragment() {
         Log.e(ListFragment::class.java.simpleName, "Error: ", throwable)
     }
 
-    private fun showList(items: List<Item>) {
+    private fun showList(items: List<Repository>) {
         loader.visibility = View.GONE
         adapter.items = items
     }

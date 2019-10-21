@@ -3,7 +3,7 @@ package com.laercioag.kotlinallstar.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class Repositories(
+data class Response(
     @SerializedName("incomplete_results")
     val incompleteResults: Boolean? = false,
     val items: List<Item>? = listOf(),

@@ -7,9 +7,10 @@ import com.laercioag.kotlinallstar.data.mapper.RepositoryMapper
 import com.laercioag.kotlinallstar.data.mapper.RepositoryMapperImpl
 import com.laercioag.kotlinallstar.data.remote.api.Api
 import com.laercioag.kotlinallstar.data.remote.api.ApiImpl
+import com.laercioag.kotlinallstar.data.remote.service.CustomInterceptor
 import com.laercioag.kotlinallstar.data.remote.service.RemoteService
-import com.laercioag.kotlinallstar.data.repository.RepositoriesRepository
-import com.laercioag.kotlinallstar.data.repository.RepositoriesRepositoryImpl
+import com.laercioag.kotlinallstar.data.repository.GitHubRepository
+import com.laercioag.kotlinallstar.data.repository.GitHubRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -29,7 +30,9 @@ class DataModule {
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
-            }).build()
+            })
+            .addInterceptor(CustomInterceptor())
+            .build()
 
     @Provides
     @Singleton
@@ -63,7 +66,7 @@ class DataModule {
         abstract fun bindRepositoryMapper(impl: RepositoryMapperImpl): RepositoryMapper
 
         @Binds
-        abstract fun bindRepositoriesRepository(impl: RepositoriesRepositoryImpl): RepositoriesRepository
+        abstract fun bindRepositoriesRepository(impl: GitHubRepositoryImpl): GitHubRepository
     }
 
 }

@@ -1,12 +1,13 @@
 package com.laercioag.kotlinallstar.data.repository
 
-import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import com.laercioag.kotlinallstar.data.local.database.AppDatabase
 import com.laercioag.kotlinallstar.data.local.entity.Repository
 import com.laercioag.kotlinallstar.data.mapper.RepositoryMapper
 import com.laercioag.kotlinallstar.data.remote.api.Api
 import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 
@@ -18,12 +19,16 @@ class RepositoryBoundaryCallback(
 
     private var isLoading = false
 
+    val repositoryState = MutableLiveData<RepositoryState>()
+    val compositeDisposable = CompositeDisposable()
 
     override fun onZeroItemsLoaded() {
+        repositoryState.value = RepositoryState.InitialLoading
         loadItems()
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Repository) {
+        repositoryState.value = RepositoryState.LoadingState
         loadItems()
     }
 
@@ -36,27 +41,30 @@ class RepositoryBoundaryCallback(
             .observeOn(Schedulers.io())
             .subscribeBy(
                 onSuccess = { size ->
-                    requestPage((size / RepositoriesRepository.PAGE_SIZE) + 1)
+                    requestPage((size / GitHubRepository.PAGE_SIZE) + 1)
                 },
                 onError = {
-                    requestPage(1)
+                    repositoryState.postValue(RepositoryState.ErrorState(it))
                 }
             )
     }
 
     private fun requestPage(pageNumber: Int) {
-        api.get(pageNumber, RepositoriesRepository.PAGE_SIZE)
-            .map { response -> mapper.mapTo(response) }
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .doFinally { isLoading = false }
-            .subscribeBy(
-                onError = {
-                    Log.e(RepositoryBoundaryCallback::class.java.simpleName, "Error:", it)
-                },
-                onSuccess = { repositories ->
-                    database.repositoryDao().insertAll(*repositories.toTypedArray())
-                }
-            )
+        compositeDisposable.add(
+            api.get(pageNumber, GitHubRepository.PAGE_SIZE)
+                .map { response -> mapper.mapTo(response) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doFinally { isLoading = false }
+                .subscribeBy(
+                    onError = {
+                        repositoryState.postValue(RepositoryState.ErrorState(it))
+                    },
+                    onSuccess = { repositories ->
+                        repositoryState.postValue(RepositoryState.LoadedState)
+                        database.repositoryDao().insertAll(*repositories.toTypedArray())
+                    }
+                )
+        )
     }
 }

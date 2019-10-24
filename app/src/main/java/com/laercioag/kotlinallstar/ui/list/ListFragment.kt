@@ -11,9 +11,11 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.laercioag.kotlinallstar.R
 import com.laercioag.kotlinallstar.data.local.entity.Repository
 import com.laercioag.kotlinallstar.data.remote.api.Api
+import com.laercioag.kotlinallstar.data.repository.RepositoryState
 import com.laercioag.kotlinallstar.ui.base.BaseFragment
 import kotlinx.android.synthetic.main.list_fragment.*
 import javax.inject.Inject
@@ -30,14 +32,6 @@ class ListFragment : BaseFragment() {
         ViewModelProviders.of(this, viewModelFactory).get(ListViewModel::class.java)
     }
 
-    private val stateObserver = Observer<ListViewModel.State> { state ->
-        when (state) {
-            is ListViewModel.State.LoadingState -> showLoading()
-            is ListViewModel.State.ErrorState -> showError(state.throwable)
-            is ListViewModel.State.ListState -> showList(state.items)
-        }
-    }
-
     private val adapter = ListAdapter()
 
     override fun onCreateView(
@@ -49,7 +43,16 @@ class ListFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.state.observe(viewLifecycleOwner, stateObserver)
+        viewModel.items.observe(viewLifecycleOwner, Observer {
+            showList(it)
+        })
+        viewModel.networkState.observe(viewLifecycleOwner, Observer {
+            adapter.repositoryState = it
+            when (it) {
+                is RepositoryState.InitialLoading -> showLoading()
+                is RepositoryState.ErrorState -> showError(it.throwable)
+            }
+        })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -78,17 +81,23 @@ class ListFragment : BaseFragment() {
     }
 
     private fun showLoading() {
-        loader.visibility = View.VISIBLE
+        swipeToRefresh.isRefreshing = true
     }
 
     private fun showError(throwable: Throwable) {
-        loader.visibility = View.GONE
+        swipeToRefresh.isRefreshing = false
+        Snackbar.make(
+            rootLayout,
+            getString(R.string.error_message),
+            Snackbar.LENGTH_SHORT
+        )
         Log.e(ListFragment::class.java.simpleName, "Error: ", throwable)
     }
 
     private fun showList(items: PagedList<Repository>) {
-        swipeToRefresh.isRefreshing = false
-        loader.visibility = View.GONE
+        if (items.loadedCount > 0) {
+            swipeToRefresh.isRefreshing = false
+        }
         adapter.submitList(items)
     }
 

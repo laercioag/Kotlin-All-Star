@@ -34,7 +34,6 @@ class GitHubRepositoryImpl @Inject constructor(
     override fun get() = getFromDb()
 
     private fun getFromDb(): Result<Repository> {
-
         val pagedList = database.repositoryDao().getAll().toLiveData(
             pageSize = PAGE_SIZE,
             boundaryCallback = boundaryCallback

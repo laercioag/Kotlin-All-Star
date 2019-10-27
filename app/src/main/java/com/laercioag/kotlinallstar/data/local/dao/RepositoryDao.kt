@@ -1,7 +1,10 @@
 package com.laercioag.kotlinallstar.data.local.dao
 
 import androidx.paging.DataSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.laercioag.kotlinallstar.data.local.entity.Repository
 
 @Dao
@@ -15,9 +18,6 @@ interface RepositoryDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg repos: Repository)
-
-    @Delete
-    fun delete(repo: Repository)
 
     @Query("DELETE FROM repository")
     fun deleteAll()

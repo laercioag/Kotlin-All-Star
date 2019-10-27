@@ -14,16 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.laercioag.kotlinallstar.R
 import com.laercioag.kotlinallstar.data.local.entity.Repository
-import com.laercioag.kotlinallstar.data.remote.api.Api
 import com.laercioag.kotlinallstar.data.repository.RepositoryState
 import com.laercioag.kotlinallstar.ui.base.BaseFragment
 import kotlinx.android.synthetic.main.list_fragment.*
 import javax.inject.Inject
 
 class ListFragment : BaseFragment() {
-
-    @Inject
-    lateinit var api: Api
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -33,6 +29,8 @@ class ListFragment : BaseFragment() {
     }
 
     private val adapter = ListAdapter()
+
+    private var errorSnackbar: Snackbar? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +49,7 @@ class ListFragment : BaseFragment() {
             when (it) {
                 is RepositoryState.InitialLoading -> showLoading()
                 is RepositoryState.ErrorState -> showError(it.throwable)
+                is RepositoryState.LoadedState -> hideLoading()
             }
         })
     }
@@ -81,23 +80,25 @@ class ListFragment : BaseFragment() {
     }
 
     private fun showLoading() {
+        errorSnackbar?.dismiss()
         swipeToRefresh.isRefreshing = true
     }
 
-    private fun showError(throwable: Throwable) {
+    private fun hideLoading() {
         swipeToRefresh.isRefreshing = false
-        Snackbar.make(
+    }
+
+    private fun showError(throwable: Throwable) {
+        hideLoading()
+        errorSnackbar = Snackbar.make(
             rootLayout,
             getString(R.string.error_message),
-            Snackbar.LENGTH_SHORT
-        )
+            Snackbar.LENGTH_LONG
+        ).apply { show() }
         Log.e(ListFragment::class.java.simpleName, "Error: ", throwable)
     }
 
     private fun showList(items: PagedList<Repository>) {
-        if (items.loadedCount > 0) {
-            swipeToRefresh.isRefreshing = false
-        }
         adapter.submitList(items)
     }
 

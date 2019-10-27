@@ -28,16 +28,20 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
             field = value
             val hasExtraRow = isLoading()
             if (hadExtraRow != hasExtraRow) {
-                if (hadExtraRow) {
-                    notifyItemRemoved(super.getItemCount())
-                } else {
-                    notifyItemInserted(super.getItemCount())
+                if (super.getItemCount() > 0) {
+                    if (hadExtraRow) {
+                        notifyItemRemoved(super.getItemCount())
+                    } else {
+                        notifyItemInserted(super.getItemCount())
+                    }
                 }
             } else if (hasExtraRow && previousState != value) {
                 notifyItemChanged(itemCount - 1)
             }
         }
 
+    private fun isLoading() =
+        repositoryState != null && repositoryState == RepositoryState.LoadingState
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -81,9 +85,6 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
     override fun getItemCount(): Int {
         return super.getItemCount() + if (isLoading()) 1 else 0
     }
-
-    private fun isLoading() =
-        repositoryState != null && repositoryState == RepositoryState.LoadingState
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: Repository) {

@@ -48,11 +48,21 @@ class GitHubRepositoryImpl @Inject constructor(
     }
 
     override fun refresh() {
+        val state = boundaryCallback.repositoryState
         Completable.fromCallable {
             boundaryCallback.compositeDisposable.clear()
             database.repositoryDao().deleteAll()
+        }.doOnSubscribe {
+            state.postValue(RepositoryState.LoadingState)
         }.subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
+            .doOnComplete {
+                state.postValue(RepositoryState.LoadedState)
+                getFromDb()
+            }
+            .doOnError {
+                state.postValue(RepositoryState.ErrorState(it))
+            }
             .subscribe()
     }
 }

@@ -5,12 +5,10 @@ import com.laercioag.kotlinallstar.di.module.AppModule
 import com.laercioag.kotlinallstar.di.module.DataModule
 import com.laercioag.kotlinallstar.di.module.ViewModelModule
 import com.laercioag.kotlinallstar.ui.base.BaseApplication
-import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
-import dagger.android.support.DaggerApplication
 import javax.inject.Singleton
 
 @Singleton

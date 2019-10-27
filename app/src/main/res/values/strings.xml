@@ -4,5 +4,5 @@
     <string name="stars_description">%d stars</string>
     <string name="forks_description">%d forks</string>
     <string name="counter_description">%d repositories</string>
-    <string name="error_message">Request error</string>
+    <string name="error_message">Request error, check your internet connection!</string>
 </resources>

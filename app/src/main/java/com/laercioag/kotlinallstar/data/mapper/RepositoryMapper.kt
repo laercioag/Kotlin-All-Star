@@ -22,6 +22,5 @@ class RepositoryMapperImpl @Inject constructor() : RepositoryMapper {
                     forks = forksCount ?: 0
                 )
             }
-
         }.orEmpty()
 }

@@ -15,7 +15,7 @@ class ListViewModel @Inject constructor(
 
 
     fun refresh() {
-        repoResult.refresh.invoke()
+        repoResult.refresh()
     }
 
 }

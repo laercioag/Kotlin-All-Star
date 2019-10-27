@@ -13,9 +13,7 @@ class ListViewModel @Inject constructor(
     val items = repoResult.pagedList
     val networkState = repoResult.repositoryState
 
-
     fun refresh() {
         repoResult.refresh()
     }
-
 }

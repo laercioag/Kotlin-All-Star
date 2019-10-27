@@ -26,5 +26,4 @@ interface ApplicationComponent : AndroidInjector<BaseApplication> {
 
     @Component.Factory
     interface Factory : AndroidInjector.Factory<BaseApplication>
-
 }

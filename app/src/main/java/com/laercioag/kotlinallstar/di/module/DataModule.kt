@@ -68,5 +68,4 @@ class DataModule {
         @Binds
         abstract fun bindRepositoriesRepository(impl: GitHubRepositoryImpl): GitHubRepository
     }
-
 }

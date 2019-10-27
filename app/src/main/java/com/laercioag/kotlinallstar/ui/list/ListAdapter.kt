@@ -63,7 +63,6 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
         }
     }
 
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (position < super.getItemCount()) {
             getItem(position)?.let { item ->

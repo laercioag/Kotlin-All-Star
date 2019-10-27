@@ -1,6 +1,5 @@
 package com.laercioag.kotlinallstar.data.remote.dto
 
-
 import com.google.gson.annotations.SerializedName
 
 data class License(

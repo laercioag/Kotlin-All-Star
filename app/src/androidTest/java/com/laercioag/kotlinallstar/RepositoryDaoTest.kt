@@ -101,5 +101,4 @@ class RepositoryDaoTest {
             forks = 0,
             stars = stars
         )
-
 }

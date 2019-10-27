@@ -8,11 +8,9 @@ import dagger.android.ContributesAndroidInjector
 @Module
 abstract class AndroidModule {
 
-
     @ContributesAndroidInjector
     abstract fun bindMainActivity(): MainActivity
 
     @ContributesAndroidInjector
     abstract fun bindListFragment(): ListFragment
-
 }

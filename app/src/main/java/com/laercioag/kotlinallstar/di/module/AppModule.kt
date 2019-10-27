@@ -7,7 +7,6 @@ import dagger.Module
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-
 @Qualifier
 @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 annotation class AppContext

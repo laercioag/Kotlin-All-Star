@@ -2,11 +2,11 @@
     <string name="app_name">Kotlin All Star</string>
     <plurals name="stars_description">
         <item quantity="one">%d star</item>
-        <item quantity="many">%d stars</item>
+        <item quantity="other">%d stars</item>
     </plurals>
     <plurals name="forks_description">
         <item quantity="one">%d fork</item>
-        <item quantity="many">%d forks</item>
+        <item quantity="other">%d forks</item>
     </plurals>
     <string name="error_message">Request error, check your internet connection!</string>
 </resources>

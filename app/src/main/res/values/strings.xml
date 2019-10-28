@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">Kotlin All Star</string>
-    <string name="position_description">#%d</string>
-    <string name="stars_description">%d stars</string>
-    <string name="forks_description">%d forks</string>
-    <string name="counter_description">%d repositories</string>
+    <plurals name="stars_description">
+        <item quantity="one">%d star</item>
+        <item quantity="many">%d stars</item>
+    </plurals>
+    <plurals name="forks_description">
+        <item quantity="one">%d fork</item>
+        <item quantity="many">%d forks</item>
+    </plurals>
     <string name="error_message">Request error, check your internet connection!</string>
 </resources>

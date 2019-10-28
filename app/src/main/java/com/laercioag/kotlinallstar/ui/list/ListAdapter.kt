@@ -91,8 +91,10 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
                 Glide.with(this).load(item.avatarUrl).into(avatar)
                 name.text = item.fullName
                 author.text = item.author
-                stars.text = resources.getQuantityText(R.plurals.stars_description, item.stars)
-                forks.text = resources.getQuantityText(R.plurals.forks_description, item.forks)
+                stars.text =
+                    resources.getQuantityString(R.plurals.stars_description, item.stars, item.stars)
+                forks.text =
+                    resources.getQuantityString(R.plurals.forks_description, item.forks, item.forks)
             }
         }
     }

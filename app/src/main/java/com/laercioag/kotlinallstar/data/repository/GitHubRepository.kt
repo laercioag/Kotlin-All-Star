@@ -7,7 +7,6 @@ import com.laercioag.kotlinallstar.data.mapper.RepositoryMapper
 import com.laercioag.kotlinallstar.data.remote.api.Api
 import com.laercioag.kotlinallstar.data.repository.GitHubRepository.Companion.PAGE_SIZE
 import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,7 +17,7 @@ interface GitHubRepository {
     }
 
     fun get(): Result<Repository>
-    fun refresh()
+    fun refresh(): Completable
     fun clear()
 }
 
@@ -47,23 +46,19 @@ class GitHubRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun refresh() {
+    override fun refresh(): Completable {
         val state = boundaryCallback.repositoryState
-        Completable.fromCallable {
+        return Completable.fromCallable {
             boundaryCallback.compositeDisposable.clear()
             database.repositoryDao().deleteAll()
         }.doOnSubscribe {
             state.postValue(RepositoryState.LoadingState)
-        }.subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .doOnComplete {
-                state.postValue(RepositoryState.LoadedState)
-                getFromDb()
-            }
-            .doOnError {
-                state.postValue(RepositoryState.ErrorState(it))
-            }
-            .subscribe()
+        }.doOnComplete {
+            state.postValue(RepositoryState.LoadedState)
+            getFromDb()
+        }.doOnError {
+            state.postValue(RepositoryState.ErrorState(it))
+        }
     }
 
     override fun clear() {

@@ -66,6 +66,6 @@ class DataModule {
         abstract fun bindRepositoryMapper(impl: RepositoryMapperImpl): RepositoryMapper
 
         @Binds
-        abstract fun bindRepositoriesRepository(impl: GitHubRepositoryImpl): GitHubRepository
+        abstract fun bindGitHubRepository(impl: GitHubRepositoryImpl): GitHubRepository
     }
 }

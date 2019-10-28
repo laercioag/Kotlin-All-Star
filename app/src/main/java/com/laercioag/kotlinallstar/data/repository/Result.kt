@@ -6,5 +6,6 @@ import androidx.paging.PagedList
 data class Result<T>(
     val pagedList: LiveData<PagedList<T>>,
     val repositoryState: LiveData<RepositoryState>,
-    val refresh: () -> Unit
+    val refresh: () -> Unit,
+    val clear: () -> Unit
 )

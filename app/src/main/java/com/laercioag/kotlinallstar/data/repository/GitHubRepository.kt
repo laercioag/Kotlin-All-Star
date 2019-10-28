@@ -18,8 +18,8 @@ interface GitHubRepository {
     }
 
     fun get(): Result<Repository>
-
     fun refresh()
+    fun clear()
 }
 
 @Singleton
@@ -42,7 +42,8 @@ class GitHubRepositoryImpl @Inject constructor(
         return Result(
             repositoryState = boundaryCallback.repositoryState,
             pagedList = pagedList,
-            refresh = this::refresh
+            refresh = this::refresh,
+            clear = this::clear
         )
     }
 
@@ -63,5 +64,9 @@ class GitHubRepositoryImpl @Inject constructor(
                 state.postValue(RepositoryState.ErrorState(it))
             }
             .subscribe()
+    }
+
+    override fun clear() {
+        boundaryCallback.compositeDisposable.clear()
     }
 }

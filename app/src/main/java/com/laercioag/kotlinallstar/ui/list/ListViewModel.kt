@@ -16,4 +16,9 @@ class ListViewModel @Inject constructor(
     fun refresh() {
         repoResult.refresh()
     }
+
+    override fun onCleared() {
+        repoResult.clear()
+        super.onCleared()
+    }
 }

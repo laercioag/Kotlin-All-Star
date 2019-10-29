@@ -125,5 +125,4 @@ class GitHubRepositoryTest {
 
         assertEquals(RepositoryState.LoadedState, repository.state.value)
     }
-
 }

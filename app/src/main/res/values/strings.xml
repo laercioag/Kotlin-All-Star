@@ -9,4 +9,5 @@
         <item quantity="other">%d forks</item>
     </plurals>
     <string name="error_message">Request error, check your internet connection!</string>
+    <string name="retry_button">Retry</string>
 </resources>

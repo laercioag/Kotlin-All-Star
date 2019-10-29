@@ -1,6 +1,5 @@
 package com.laercioag.kotlinallstar.data.repository
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.toLiveData
 import com.laercioag.kotlinallstar.data.local.database.AppDatabase

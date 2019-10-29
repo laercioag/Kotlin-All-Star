@@ -1,5 +1,6 @@
 package com.laercioag.kotlinallstar.data.repository
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.toLiveData
 import com.laercioag.kotlinallstar.data.local.database.AppDatabase
@@ -39,7 +40,7 @@ class GitHubRepositoryImpl @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
-    private val state = MutableLiveData<RepositoryState>()
+    val state = MutableLiveData<RepositoryState>()
 
     private var isLoading = false
 

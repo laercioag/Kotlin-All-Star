@@ -42,14 +42,27 @@ class ListFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        setupAdapter()
+        setupItemsObserver()
+        setupStateObserver()
+    }
+
+    private fun setupAdapter() {
+        adapter.retryFunction = viewModel.retry()
+    }
+
+    private fun setupItemsObserver() {
         viewModel.items.observe(viewLifecycleOwner, Observer {
             showList(it)
         })
+    }
+
+    private fun setupStateObserver() {
         viewModel.networkState.observe(viewLifecycleOwner, Observer {
             adapter.repositoryState = it
             when (it) {
-                is RepositoryState.InitialLoading -> showLoading()
-                is RepositoryState.ErrorState -> showError(it.throwable)
+                is RepositoryState.InitialLoadingState -> showLoading()
+                is RepositoryState.InitialLoadingErrorState -> showError(it.throwable)
                 is RepositoryState.LoadedState -> hideLoading()
             }
         })

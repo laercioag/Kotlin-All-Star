@@ -11,6 +11,7 @@ import com.laercioag.kotlinallstar.R
 import com.laercioag.kotlinallstar.data.local.entity.Repository
 import com.laercioag.kotlinallstar.data.repository.RepositoryState
 import kotlinx.android.synthetic.main.list_item.view.*
+import kotlinx.android.synthetic.main.retry_item.view.*
 
 class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object :
     DiffUtil.ItemCallback<Repository>() {
@@ -24,9 +25,9 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
     var repositoryState: RepositoryState? = null
         set(value) {
             val previousState = field
-            val hadExtraRow = isLoading()
+            val hadExtraRow = isLoading() || isError()
             field = value
-            val hasExtraRow = isLoading()
+            val hasExtraRow = isLoading() || isError()
             if (hadExtraRow != hasExtraRow) {
                 if (super.getItemCount() > 0) {
                     if (hadExtraRow) {
@@ -40,8 +41,13 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
             }
         }
 
+    var retryFunction: (() -> Unit)? = null
+
     private fun isLoading() =
-        repositoryState != null && repositoryState == RepositoryState.LoadingState
+        repositoryState != null && repositoryState is RepositoryState.LoadingState
+
+    private fun isError() =
+        repositoryState != null && repositoryState is RepositoryState.ErrorState
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -59,6 +65,13 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
                     false
                 )
             )
+            R.layout.retry_item -> RetryViewHolder(
+                LayoutInflater.from(parent.context).inflate(
+                    R.layout.retry_item,
+                    parent,
+                    false
+                )
+            )
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
     }
@@ -70,19 +83,27 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
                     R.layout.list_item -> (holder as ItemViewHolder).bind(item)
                 }
             }
+        } else {
+            when (getItemViewType(position)) {
+                R.layout.retry_item -> retryFunction?.apply {
+                    (holder as RetryViewHolder).bind(this)
+                }
+            }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         return if (isLoading() && position == itemCount - 1) {
             R.layout.loading_item
+        } else if (isError() && position == itemCount - 1) {
+            R.layout.retry_item
         } else {
             R.layout.list_item
         }
     }
 
     override fun getItemCount(): Int {
-        return super.getItemCount() + if (isLoading()) 1 else 0
+        return super.getItemCount() + if (isLoading() || isError()) 1 else 0
     }
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -100,4 +121,14 @@ class ListAdapter : PagedListAdapter<Repository, RecyclerView.ViewHolder>(object
     }
 
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+    class RetryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bind(retry: () -> Unit) {
+            with(itemView) {
+                retryButton.setOnClickListener {
+                    retry()
+                }
+            }
+        }
+    }
 }

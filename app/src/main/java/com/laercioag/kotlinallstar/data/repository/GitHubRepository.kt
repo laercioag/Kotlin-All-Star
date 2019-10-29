@@ -1,5 +1,6 @@
 package com.laercioag.kotlinallstar.data.repository
 
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.toLiveData
 import com.laercioag.kotlinallstar.data.local.database.AppDatabase
 import com.laercioag.kotlinallstar.data.local.entity.Repository
@@ -7,6 +8,10 @@ import com.laercioag.kotlinallstar.data.mapper.RepositoryMapper
 import com.laercioag.kotlinallstar.data.remote.api.Api
 import com.laercioag.kotlinallstar.data.repository.GitHubRepository.Companion.PAGE_SIZE
 import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,18 +22,26 @@ interface GitHubRepository {
     }
 
     fun get(): Result<Repository>
-    fun refresh(): Completable
+    fun refresh()
+    fun getNewPage(isFirstLoad: Boolean)
+    fun loadNewPage(isFirstLoad: Boolean)
     fun clear()
 }
 
 @Singleton
 class GitHubRepositoryImpl @Inject constructor(
     private val database: AppDatabase,
-    api: Api,
-    mapper: RepositoryMapper
+    private val api: Api,
+    private val mapper: RepositoryMapper
 ) : GitHubRepository {
 
-    private val boundaryCallback = RepositoryBoundaryCallback(api, database, mapper)
+    private val boundaryCallback = RepositoryBoundaryCallback(this)
+
+    private val compositeDisposable = CompositeDisposable()
+
+    private val state = MutableLiveData<RepositoryState>()
+
+    private var isLoading = false
 
     override fun get() = getFromDb()
 
@@ -39,29 +52,77 @@ class GitHubRepositoryImpl @Inject constructor(
         )
 
         return Result(
-            repositoryState = boundaryCallback.repositoryState,
+            repositoryState = state,
             pagedList = pagedList,
             refresh = this::refresh,
+            retry = { getNewPage(isFirstLoad = false) },
             clear = this::clear
         )
     }
 
-    override fun refresh(): Completable {
-        val state = boundaryCallback.repositoryState
-        return Completable.fromCallable {
-            boundaryCallback.compositeDisposable.clear()
-            database.repositoryDao().deleteAll()
-        }.doOnSubscribe {
-            state.postValue(RepositoryState.LoadingState)
-        }.doOnComplete {
-            state.postValue(RepositoryState.LoadedState)
-            getFromDb()
-        }.doOnError {
-            state.postValue(RepositoryState.ErrorState(it))
-        }
+    override fun refresh() {
+        Completable
+            .fromCallable {
+                compositeDisposable.clear()
+                database.repositoryDao().deleteAll()
+            }
+            .doOnComplete {
+                getNewPage(isFirstLoad = true)
+            }
+            .doOnError {
+                state.postValue(RepositoryState.ErrorState(it))
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .subscribe()
+    }
+
+    override fun getNewPage(isFirstLoad: Boolean) {
+        isLoading = true
+        compositeDisposable.add(
+            Single
+                .fromCallable {
+                    database.repositoryDao().size()
+                }
+                .flatMap { size ->
+                    val pageNumber = (size / PAGE_SIZE) + 1
+                    api.get(pageNumber, PAGE_SIZE)
+                }
+                .map { response ->
+                    val repositories = mapper.mapTo(response)
+                    database.repositoryDao().insertAll(*repositories.toTypedArray())
+                }
+                .doFinally { isLoading = false }
+                .doOnSubscribe {
+                    if (isFirstLoad) {
+                        state.postValue(RepositoryState.InitialLoadingState)
+                    } else {
+                        state.postValue(RepositoryState.LoadingState)
+                    }
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribeBy(
+                    onSuccess = {
+                        state.postValue(RepositoryState.LoadedState)
+                    },
+                    onError = {
+                        if (isFirstLoad) {
+                            state.postValue(RepositoryState.InitialLoadingErrorState(it))
+                        } else {
+                            state.postValue(RepositoryState.ErrorState(it))
+                        }
+                    }
+                )
+        )
+    }
+
+    override fun loadNewPage(isFirstLoad: Boolean) {
+        if (isLoading) return
+        getNewPage(isFirstLoad)
     }
 
     override fun clear() {
-        boundaryCallback.compositeDisposable.clear()
+        compositeDisposable.clear()
     }
 }
